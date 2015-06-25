@@ -9,7 +9,7 @@ function Process (pid, host, messages) {
 
     for (var i = 0; i < messages.length; i++) {
         this.addMessage(messages[i].msg, messages[i].time);
-    };
+    }
 }
 
 Process.prototype.addMessage = function(message, t) {
@@ -17,11 +17,11 @@ Process.prototype.addMessage = function(message, t) {
         this.messages = [];
     }
     this.messages.push(message);
-    string = "<li class='message'>"
+    string = "<li class='message'>";
     lines = message.join(" ").split("\n");
     for (var i = 0; i < lines.length; i++) {
         string += lines[i] + "<br>";
-    };
+    }
 
     string += "<span class='timestamp'>" + t.toLocaleString();
     string += "</span>";
@@ -31,7 +31,7 @@ Process.prototype.addMessage = function(message, t) {
 };
 
 Process.prototype.hasState = function() {
-    return this.state != undefined;
+    return this.state !== undefined;
 };
 
 Process.prototype.addState = function(stateobject) {
@@ -49,7 +49,7 @@ function Host (name) {
     $("body").append("<ul class='row sortable grid handles' id='"+this.name+"'><h3>On "+name+": </h3></ul>");
 
     this.domObject = $("#"+this.name)[0];
-};
+}
 
 Host.prototype.addProcess = function(pid, msg_state) {
     if(!msg_state) {
@@ -71,7 +71,7 @@ function State(host, pid, stateobject) {
         this.data[prop] = stateobject[prop];
     }
 
-    this.html = "<div class='state'></div>"
+    this.html = "<div class='state'><div class='pbars'></div></div>";
     $("#"+this.host + " ."+this.pid).append(this.html);
     this.domObject = $("#"+this.host + " ."+this.pid + " .state")[0];
 
@@ -84,28 +84,30 @@ State.prototype.update = function(stateobject) {
     }
 
     for(var prop in stateobject) {
-        if(prop == "progress") {
-            p = $(this.domObject).find(".progress");
-            if(p.length == 0) {
-                $(this.domObject).prepend("<div class='progress'>"
-                    +"<div class='progress-bar' role='progressbar'"
-                    +" aria-valuenow='60' aria-valuemin='0' aria-valuemax='100'"
-                    +" style='width: 60%;'>60%</div></div>");
+        var state = stateobject[prop];
+        if(state.type == "progress") {
+            p = $(this.domObject).find(".pbar-"+prop);
+            if(p.length === 0) {
+                $(this.domObject).find(".pbars").append(prop +
+                    "<br/><div class='progress'>"+
+                    "<div class='progress-bar pbar-"+prop+"' role='progressbar'"+
+                    " style='width: 60%;'>60%</div></div>");
             }
-
-            $(this.domObject).find(".progress .progress-bar")
-                    .css("width", stateobject.progress+"%")
-                    .attr("aria-valuenow", stateobject.progress)
-                    .text(stateobject.progress);
+            pbar_dom = $(this.domObject).find(".progress-bar.pbar-"+prop);
+            $(pbar_dom).css("width", state.value+"%").text(state.value);
+            if('color' in state) {
+                $(pbar_dom).css("background-color", state.color);
+            }
         } else {
             o = $(this.domObject).find("." + prop);
-            if(o.length == 0) {
-                $(this.domObject).append("<b>"+prop+"</b>: <span class='property " 
-                    + prop + "'></span>, ");
+            if(o.length === 0) {
+                $(this.domObject).append("<b>"+prop+"</b>: <span class='property " +
+                    prop + "'></span>, ");
             }
-            $(this.domObject).find(".property." + prop).text(stateobject[prop]);
-                // .fadeTo(400, 0, function() {$(this).text(stateobject[prop]);})
-                // .fadeTo(400, 1);
+            $(this.domObject).find(".property." + prop).text(stateobject[prop].value);
+            if('color' in stateobject[prop]) {
+                $(this.domObject).find(".property." + prop).css("color", stateobject[prop].color);
+            }
         }
     }
 };
