@@ -1,0 +1,161 @@
+<html>
+<head>
+    <title>Socket testing</title>
+    <!-- Socket.io -->
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    
+    <!-- JQuery -->
+    <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+    
+    <!-- Bootstrap -->
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
+    <script type="text/javascript" src="bootstrap.min.js"></script>
+    
+    <!-- Objects -->
+    <script type="text/javascript" src="helper_objects.js"></script>
+
+    <!-- ScrollTo library -->
+    <script src="//cdn.jsdelivr.net/jquery.scrollto/2.1.0/jquery.scrollTo.min.js"></script>
+
+    <!-- Sortable library -->
+    <script type="text/javascript" src="jquery.sortable.js"></script>
+
+    <script type="text/javascript">
+    var socket = io();
+    var hosts = {};
+
+    socket.on("logs", function(logs){
+        for(var host in logs) {
+            hosts[host] = new Host(host);
+            for(var pid in logs[host]) {
+                hosts[host].addProcess(pid, logs[host][pid]);
+            }
+        }
+        activate_sortables();
+    });
+
+    socket.on("new_process", function(info) {
+        console.log("adding new process");
+        if(!hosts[info.host]) {
+            hosts[info.host] = new Host(info.host);
+        }
+        hosts[info.host].addProcess(info.pid);
+        activate_sortables();
+    });
+
+    socket.on("progress", function(prog) {
+        h = hosts[prog.host];
+        p = h.processes[prog.pid];
+        p.addMessage(prog.msg, prog.time);
+        $("#"+h.name+" ."+p.pid+" pre").scrollTo("max", {axis: "y"});
+    });
+
+    socket.on("new_state", function(data, num) {
+        var host = data.host;
+        var pid = data.pid;
+
+        if(!hosts[host].processes[pid].hasState()) {
+            hosts[host].processes[pid].addState(data.state);
+        } else {
+            hosts[host].processes[pid].updateState(data.state);
+        }
+    });
+
+
+    socket.emit("register_consumer");
+
+    function activate_sortables() {
+        $(function() {
+            $('.sortable').sortable();
+            $('.handles').sortable({
+                handle: '.handle'
+            });
+            $('.connected').sortable({
+                connectWith: '.connected'
+            });
+            $('.exclude').sortable({
+                items: ':not(.disabled)'
+            });
+        });
+    }
+    </script>
+
+    <style type="text/css">
+
+    .log {
+        display: block;
+        float: left;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .sortable-placeholder {
+        display: block;
+        float: left;
+        width: 600px;
+        border: 1px dashed #CCC;
+        background: none;
+    }
+
+    pre {
+        border: 2px solid #555555;
+        border-radius: 4px;
+
+        height: 4in;
+
+        overflow-y: scroll;
+
+        word-wrap: break-word;
+
+        padding-left: 1cm;
+    }
+
+    pre ul {
+        padding-left: 0;
+    }
+
+    .sortable.grid pre li {
+        height: 2.3em;
+        list-style: none;
+        margin-left: 0;
+    }
+
+    .sortable.grid li {
+        display: block;
+        float: left;
+        width: 600px;
+        height: 500px;
+    }
+
+    .log li span.timestamp {
+        margin-left: -25px;
+        color: #999999;
+    }
+
+    span.handle:before {
+        content: "\f142 \202F \f142 \202F \f142 \202F \f142";
+    }
+
+    span.handle {
+        margin-right: 1ex;
+        cursor: grab;
+    }
+    </style>
+</head>
+<body class="container-fluid">
+<script type="text/javascript">
+    $(function() {
+        $('.sortable').sortable();
+        $('.handles').sortable({
+            handle: '.handle'
+        });
+        $('.connected').sortable({
+            connectWith: '.connected'
+        });
+        $('.exclude').sortable({
+            items: ':not(.disabled)'
+        });
+    });
+</script>
+</body>
+</html>
