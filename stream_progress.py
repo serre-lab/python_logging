@@ -41,14 +41,39 @@ def logged(func):
 
 def update(props, engine=-1):
     """
-    Updates any number of arbitrary key-value properties of this process 
-    (or the engine given in a keyword argument) on the remote server.
-    The exception is "progress"--any value keyed as "progress" is assumed
-    to be a numeric percentage representing progress towards a goal, and is 
-    used to construct a progress bar on the final webpage.
+    Updates any number of properties assosciated with this process or a given engine.
+    'props' is expected to be a dictionary of dictionaries, something like:
+    {
+        "progress": {
+            "value":50,
+            "type":"progress"
+        },
+        "progress2": {
+            "value":75,
+            "type":"progress",
+            "color":"green"
+        },
+        "simple": {
+            "value":"foo",
+            "type":"numeric",
+            "color":"#123456"
+        }
+    }
+
+    These can be done in one call to update() or multiple--they accumulate.
+
+    "value" and "type" are required, "color" is not. If present, "color" is allowed to be 
+    any CSS color value (a string like "red", "green", etc, a 6-digit hex code preceded by "#",
+    or an rgb value like 'rgb(1,2,3)', to name a few).
+
+    Entries with type 'progress' are turned into progress bars, and expect a numeric percentage in 'value'.
+    Anything else is just printed out as a key-value pair.
+
+    See the main routine of this file for an example.
     """
     if(engine == -1):
         engine = os.getpid()
+
 
     _socketIO.emit("state", {'pid':engine, 'state': props})
 
