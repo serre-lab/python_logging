@@ -59,14 +59,30 @@ if __name__ == "__main__":
     print = logged(print)
 
     def prog_test(n):
+        # Color values can be any CSS color value
+        progress_color = r.choice(['red', '#337ab7', "rgb(137,92,176)", '#926f47'])
         for i in range(100):
+            # Printed strings are sent directly during the print function
             print("#" * i)
-            update({"progress": i+1})
+
+            # bulid a state dictionary of keys to {'value':<>, "type":<string>, ["color": <css-color>]}
+            state = dict()
+            state['progress'] = {"value": i+1, "type":"progress", 'color':progress_color}
             if(i % 20 == 0):
-                update({"temperature": r.choice([35, 60, 70, 80, 99, 104, 50])})
+                temp = {'value': r.choice([35, 60, 70, 80, 99, 104, 50])}
+                temp['type'] = "numeric";
+                if(temp['value'] > 80):
+                    temp['color'] = 'red';
+                else:
+                    temp['color'] = 'green';
+
+                state['temperature'] = temp;
             if(i % 10 == 5):
-                update({"status": r.choice(["reading", "writing", "waiting"])})
+                state['status'] = {"value": r.choice(["reading", "writing", "waiting"]), 'type':'string'}
+
+            # Send the whole state dictionary at once. Could be done in separate parts.
+            update(state)
             time.sleep(0.5)
-        update({"status": "finished"})
+        update({"status":{"value": "finished", "type":"string"}})
 
     prog_test(100)
