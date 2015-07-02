@@ -14,7 +14,7 @@ from select import select
 host = "g15.clps.brown.edu"
 port = 8000
 _socketIO = SocketIO(host, port, BaseNamespace)
-_socketIO.emit("register_producer", os.getpid())
+#_socketIO.emit("register_producer", os.getpid())
 
 def logged(func):
     """
@@ -30,6 +30,7 @@ def logged(func):
 
     Make sure that a server is actually running on g15 if there are socketIO errors.
     """
+
     def wrap(*args, **kwargs):
         try:
             pid = os.getpid()
