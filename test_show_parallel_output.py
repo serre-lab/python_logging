@@ -76,7 +76,8 @@ def prog_test(n):
 
         # bulid a state dictionary of keys to {'value':<>, "type":<string>, ["color": <css-color>]}
         state = dict()
-        state['progress'] = {"value": i+1, "type":"progress", 'color':progress_color}
+        state['progress'] = {"value": i+1, "type":"progress", 'color':"red"}
+        state['progress2'] = {"value": i+1, "type":"progress", 'color':"blue"}
         if(i % 20 == 0):
             temp = {'value': r.choice([35, 60, 70, 80, 99, 104, 50])}
             temp['type'] = "numeric";
