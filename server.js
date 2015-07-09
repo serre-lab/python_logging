@@ -7,6 +7,8 @@ var app = express();
 
 var http = require("http").Server(app);
 
+var net = require("net");
+
 io.listen(http);
 
 var logs = {};
@@ -93,6 +95,43 @@ io.on('connection', function(socket) {
   socket.on("get_producers", function() {
     socket.emit("logs", logs);
   });
+
+
+  /*
+  Python logging module events
+  incoming: record
+  outgoing: none
+  */
+  socket.on("record", function(msg) {
+    //Set to echo for now
+    console.log(msg);
+  });
+
+});
+
+var logSocket = net.createServer(function(c) {
+  console.log("Logging client connected from " + c.remoteAddress);
+  c.on("end", function() {
+    console.log("Logger client disconnected");
+  });
+
+  c.on("data", function(buf) {
+    var json_string = "["+String(buf).replace(/\0\{/g, ',{').replace(/\0/,"")+"]";
+    var objs = JSON.parse(json_string);
+    for (var i = 0; i < objs.length; i++) {
+      objs[i].host = c.remoteAddress;
+      if(!logs[c.remoteAddress][objs[i].pid]) {
+        logs[c.remoteAddress][objs[i].pid] = {"messages": []};
+        io.to("consumers").emit("new_process", {"host": c.remoteAddress, "pid":objs[i].pid});
+      }
+      logs[c.remoteAddress][objs[i].pid].messages.push(objs[i]);
+      io.to('consumers').emit("progress", objs[i]);
+    }
+  });
+});
+
+logSocket.listen(8080, function() {
+  console.log("Logging socket open on port 8080");
 });
 
 http.listen(8000, function() {
