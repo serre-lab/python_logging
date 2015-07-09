@@ -1,14 +1,20 @@
+#!/usr/bin/env python
 from __future__ import print_function
+try:
+    import colored_traceback.always
+except ImportError:
+    pass
+
 
 from socketIO_client import SocketIO,BaseNamespace
 import os
 
 from select import select
 
-host = "localhost"#"g15.clps.brown.edu"
+host = "g15.clps.brown.edu"
 port = 8000
 _socketIO = SocketIO(host, port, BaseNamespace)
-_socketIO.emit("register_producer", os.getpid())
+#_socketIO.emit("register_producer", os.getpid())
 
 def logged(func):
     """
@@ -24,6 +30,7 @@ def logged(func):
 
     Make sure that a server is actually running on g15 if there are socketIO errors.
     """
+
     def wrap(*args, **kwargs):
         try:
             pid = os.getpid()
@@ -62,7 +69,7 @@ def update(props, engine=-1):
 
     These can be done in one call to update() or multiple--they accumulate.
 
-    "value" and "type" are required, "color" is not. If present, "color" is allowed to be 
+    "value" and "type" are required, "color" is not. If present, "color" is allowed to be
     any CSS color value (a string like "red", "green", etc, a 6-digit hex code preceded by "#",
     or an rgb value like 'rgb(1,2,3)', to name a few).
 
