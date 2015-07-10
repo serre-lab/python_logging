@@ -19,15 +19,16 @@ class JSONSocketHandler(logging.handlers.SocketHandler):
         return json.dumps(obj) + '\000'
 
 def main():
-    import logging
+    import logging,time
 
     h = JSONSocketHandler("localhost", 8080)
     logging.getLogger().addHandler(h)
 
     logging.warning("Testing!!!")
     logging.error("Error message")
+    time.sleep(1)
     logging.error("Error message")
-    logging.error("Error message")
+    logging.error("Error message\nThat is\nVery\nLong")
 
 if __name__ == '__main__':
     main()
