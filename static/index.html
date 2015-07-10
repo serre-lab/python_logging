@@ -141,6 +141,32 @@
         cursor: grab;
     }
     </style>
+
+    <style type="text/css" id="level-contextual-styles">
+    .message {
+        /*global message styles*/
+    }
+
+    /*Any class selectors like .messaage.message-LEVEL apply to messages of 
+    the given level,  where LEVEL is an allcaps version of one of the python
+    logging levels, (i.e. DEBUG, INFO, WARNING, DANGER, CRITICAL, or other
+    user-defined values)*/
+    .message.message-ERROR {
+        color: #d9534f;
+    }
+
+    .message.message-WARNING {
+        color: #f0ad4e;
+    }
+
+    .message.message-CRITICAL {
+        color: red;
+    }
+
+    .message.message-DEBUG {
+        color: #5cb85c;
+    }
+    </style>
 </head>
 <body class="container-fluid">
 <script type="text/javascript">
