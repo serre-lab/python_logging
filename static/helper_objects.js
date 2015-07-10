@@ -21,9 +21,11 @@ Process.prototype.addMessage = function(msg_obj) {
     string = "<li class='message";
     if (msg_obj.level) {
         string += " message-" + msg_obj.level;
+        string += "'>[" + msg_obj.level + "]:";
+    } else  {
+        string += "'>";
     }
-    string += "'>";
-    lines = message.join(" ").split("\n");
+    var lines = message.join(" ").split("\n");
     for (var i = 0; i < lines.length; i++) {
         string += lines[i] + "<br>";
     }

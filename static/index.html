@@ -46,7 +46,7 @@
     socket.on("progress", function(prog) {
         h = hosts[prog.host];
         p = h.processes[prog.pid];
-        p.addMessage(prog.msg, prog.time);
+        p.addMessage(prog);
         $("#"+h.name+" ."+p.pid+" pre").scrollTo("max", {axis: "y"});
     });
 
@@ -113,7 +113,7 @@
     }
 
     .sortable.grid pre li {
-        height: 2.3em;
+        min-height: 2.3em;
         list-style: none;
         margin-left: 0;
     }
@@ -130,6 +130,7 @@
 
     .log li span.timestamp {
         color: #999999;
+        opacity: 0.0;
     }
 
     span.handle:before {
@@ -139,6 +140,10 @@
     span.handle {
         margin-right: 1ex;
         cursor: grab;
+    }
+
+    .message:hover span.timestamp {
+        opacity: 1.0;
     }
     </style>
 
