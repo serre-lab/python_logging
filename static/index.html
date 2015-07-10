@@ -82,6 +82,10 @@
 
     <style type="text/css">
 
+    body {
+        background-color: #dddddd;
+    }
+
     .log {
         display: block;
         float: left;
@@ -106,6 +110,7 @@
         overflow-y: scroll;
 
         word-wrap: break-word;
+        background-color: #222222;
     }
 
     pre ul {
@@ -118,7 +123,7 @@
         margin-left: 0;
     }
 
-    .sortable.grid li {
+    .sortable.grid > li {
         display: block;
         float: left;
         width: 600px;
@@ -129,7 +134,7 @@
     }
 
     .log li span.timestamp {
-        color: #999999;
+        color: #bbbbbb;
         opacity: 0.0;
     }
 
@@ -149,8 +154,9 @@
     </style>
 
     <style type="text/css" id="level-contextual-styles">
-    .message {
+    li.message {
         /*global message styles*/
+        color: white;
     }
 
     /*Any class selectors like .messaage.message-LEVEL apply to messages of 
