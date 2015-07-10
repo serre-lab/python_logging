@@ -8,22 +8,29 @@ function Process (pid, host, messages) {
     this.domObject = $("#"+this.host+" ."+this.pid+" ul")[0];
 
     for (var i = 0; i < messages.length; i++) {
-        this.addMessage(messages[i].msg, messages[i].time);
+        this.addMessage(messages[i]);
     }
 }
 
-Process.prototype.addMessage = function(message, t) {
+Process.prototype.addMessage = function(msg_obj) {
     if(this.messages === undefined) {
         this.messages = [];
     }
+    var message = msg_obj.msg;
     this.messages.push(message);
-    string = "<li class='message'>";
+    string = "<li class='message";
+    if (msg_obj.level) {
+        string += " message-" + msg_obj.level;
+    }
+    string += "'>";
     lines = message.join(" ").split("\n");
     for (var i = 0; i < lines.length; i++) {
         string += lines[i] + "<br>";
     }
 
-    string += "<span class='timestamp'>" + t.toLocaleString();
+    t = msg_obj.time;
+
+    string += "<span class='timestamp'>" + Date(t).toLocaleString();
     string += "</span>";
     string += "</li>";
 
