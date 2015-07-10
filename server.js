@@ -96,21 +96,13 @@ io.on('connection', function(socket) {
     socket.emit("logs", logs);
   });
 
-
-  /*
-  Python logging module events
-  incoming: record
-  outgoing: none
-  */
-  socket.on("record", function(msg) {
-    //Set to echo for now
-    console.log(msg);
-  });
-
 });
 
 var logSocket = net.createServer(function(c) {
   console.log("Logging client connected from " + c.remoteAddress);
+  if(!logs[c.remoteAddress]) {
+    logs[c.remoteAddress] = {};
+  }
   c.on("end", function() {
     console.log("Logger client disconnected");
   });
