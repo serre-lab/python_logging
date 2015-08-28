@@ -59,6 +59,12 @@ def log(msg, engine=-1):
     _socketIO.emit("progress", {"pid":engine, "msg":[msg]})
 
 def remove(engine=-1):
+    """
+    Remove a given engine from the view
+
+    >>> remove(14309)
+    >>>
+    """
     if engine == -1:
         engine = os.getpid()
 
