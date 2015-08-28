@@ -107,6 +107,13 @@ State.prototype.update = function(stateobject) {
             if('color' in state) {
                 $(pbar_dom).css("background-color", state.color);
             }
+        } else if(state.type == "image") {
+            p = $(this.domObject).find("img." + prop);
+            if(p.length === 0) {
+                $(this.domObject).append("<b>"+prop+": </b><img class='property "+prop+"' src='"+state.value+"'></img>");
+            } else  {
+                $(p).attr('src', state.value);
+            }
         } else {
             o = $(this.domObject).find("." + prop);
             if(o.length === 0) {
