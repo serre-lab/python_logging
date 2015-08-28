@@ -21,7 +21,7 @@ def logged(func):
     A wrapper function to be used on print().
     Depends on the socketIO_client module (try 'pip install socketIO_client' if it's not already there.)
     You will need to use "from __future__ print_function", and then wrap the print function by adding "print = logged(print)".
-    After that, any call to print() will send data to the server specified in this file (currently g15.clps.brown.edu), in additon to printing it.
+    After that, any call to print() will send data to the server specified in this file (currently g15.clps.brown.edu port 8000), in additon to printing it.
     If you want to specify a particular engine to assosciate a call to print() with, add a keyword argument 'engine' to the print() call.
 
     e.g., print("Starting...", engine=4) will print "Starting..." on engine 4.
@@ -45,6 +45,24 @@ def logged(func):
             func(*args, **kwargs)
 
     return wrap
+
+def log(msg, engine=-1):
+    """
+    Log a message to the given engine.
+
+    >>> log("Hello, World!", engine="test")
+    >>>
+    """
+    if engine == -1:
+        engine = os.getpid()
+
+    _socketIO.emit("progress", {"pid":engine, "msg":[msg]})
+
+def remove(engine=-1):
+    if engine == -1:
+        engine = os.getpid()
+
+    _socketIO.emit("remove", engine)
 
 def update(props, engine=-1):
     """

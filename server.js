@@ -75,6 +75,12 @@ io.on('connection', function(socket) {
     io.to('consumers').emit("new_state", item, 4);
   });
 
+  socket.on("remove", function(pid) {
+    var info = {pid: pid, host:clienthost};
+    delete logs[clienthost][pid];
+    io.to("consumers").emit("remove", info);
+  });
+
 
   /*
   Consumer events

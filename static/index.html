@@ -61,6 +61,11 @@
         }
     });
 
+    socket.on("remove", function(info) {
+        console.log("Removing process");
+        hosts[info.host].removeProcess(info.pid);
+    });
+
 
     socket.emit("register_consumer");
 

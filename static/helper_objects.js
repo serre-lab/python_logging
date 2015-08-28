@@ -71,6 +71,11 @@ Host.prototype.addProcess = function(pid, msg_state) {
     }
 };
 
+Host.prototype.removeProcess = function(pid) {
+    delete this.processes[pid];
+    $("#"+this.name+" ."+pid).remove();
+};
+
 function State(host, pid, stateobject) {
     this.host = host;
     this.pid = pid;
