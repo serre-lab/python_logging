@@ -12,6 +12,21 @@ function Process (pid, host, messages) {
     }
 }
 
+var escapeMap = {
+    "'": "&#39;",
+    "\"":"&quot;",
+    "<":"&lt;",
+    ">":"&gt;",
+    "/":"&#x2F;",
+    "&":"&amp;"
+}
+
+function escapeHTML(string) {
+    return String(string).replace(/[&<>"'\/]/g, function(x) {
+        return escapeMap[x];
+    });
+}
+
 Process.prototype.addMessage = function(msg_obj) {
     if(this.messages === undefined) {
         this.messages = [];
@@ -27,7 +42,7 @@ Process.prototype.addMessage = function(msg_obj) {
     }
     var lines = message.join(" ").split("\n");
     for (var i = 0; i < lines.length; i++) {
-        string += lines[i] + "<br>";
+        string += escapeHTML(lines[i]) + "<br>";
     }
 
     t = msg_obj.time;
