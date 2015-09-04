@@ -144,12 +144,21 @@
     }
 
     span.handle:before {
-        content: "\f142 \202F \f142 \202F \f142 \202F \f142";
+        content: "::::::::";
     }
 
     span.handle {
         margin-right: 1ex;
-        cursor: grab;
+        cursor:grab;
+        cursor: -webkit-grab;
+    }
+
+    span.handle:hover {
+        color:red;
+    }
+
+    .message span.timestamp {
+        transition: opacity 0.3s;
     }
 
     .message:hover span.timestamp {
