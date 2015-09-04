@@ -128,7 +128,7 @@ var logSocket = net.createServer(function(c) {
   });
 });
 
-logSocket.listen(8080, function() {
+logSocket.listen(8001, function() {
   console.log("Logging socket open on port 8080");
 });
 
