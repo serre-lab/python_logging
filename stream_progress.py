@@ -11,10 +11,17 @@ import os
 
 from select import select
 
+is_initialized = False
 host = "g15.clps.brown.edu"
 port = 8000
-_socketIO = SocketIO(host, port, BaseNamespace)
-#_socketIO.emit("register_producer", os.getpid())
+_socketIO = None
+
+# Default init to socket
+def ensure_init():
+    global _socketIO
+    if _socketIO is None:
+        _socketIO = SocketIO(host, port, BaseNamespace)
+        #_socketIO.emit("register_producer", os.getpid())
 
 def logged(func):
     """
@@ -38,13 +45,22 @@ def logged(func):
                 pid = kwargs['engine']
                 del kwargs['engine']
 
+            ensure_init()
             _socketIO.emit("progress", {"pid":pid, "msg":args})
         except Exception, e:
-            func("Couldn't send output to server '" + host + ":" + port +"'.")
+            func("Couldn't send output to server '" + host + ":" + str(port) +"'.")
         finally:
             func(*args, **kwargs)
 
     return wrap
+
+def get_default_engine(i_gpu = None):
+    node = os.uname()[1]
+    pid = os.getpid()
+    if i_gpu is None:
+        return "node_%s_pid_%i" % (node, pid)
+    else:
+        return "node_%s_gpu_%i_pid_%i" % (node, i_gpu, pid)
 
 def log(msg, engine=-1):
     """
@@ -56,6 +72,7 @@ def log(msg, engine=-1):
     if engine == -1:
         engine = os.getpid()
 
+    ensure_init()
     _socketIO.emit("progress", {"pid":engine, "msg":[msg]})
 
 def remove(engine=-1):
@@ -68,6 +85,7 @@ def remove(engine=-1):
     if engine == -1:
         engine = os.getpid()
 
+    ensure_init()
     _socketIO.emit("remove", engine)
 
 def update(props, engine=-1):
@@ -105,8 +123,61 @@ def update(props, engine=-1):
     if(engine == -1):
         engine = os.getpid()
 
-
+    ensure_init()
     _socketIO.emit("state", {'pid':engine, 'state': props})
+
+# Fake socket that simply collects the data
+class LocalSocket:
+    def __init__(self):
+        self.data = { }
+
+    def emit(self, cmd, data):
+        # Callback from socket: Just collect data
+        if cmd == 'remove':
+            if data in self.data:
+                del self.data[data]
+        else:
+            if not data['pid'] in self.data:
+                self.data[data['pid']] = { 'log': [] }
+            if cmd == 'state':
+                for k,v in data['state'].iteritems():
+                    #print ('Set ' + data['pid'] + ' ' + k + ' = ' + str(v))
+                    self.data[data['pid']][k] = v
+            elif cmd == 'progress':
+                self.data[data['pid']]['log'] += [data['msg']]
+
+    def get_data(self, key=None, engine=None):
+        # Query function for logged data
+        if engine is None: engine = os.getpid()
+        data = self.data.get(engine)
+        if not data: return None
+        if not key: return data
+        return data.get(key)
+
+    def get_value(self, key, engine=None, default=None):
+        # Query function for value field of logged data
+        result = default
+        data = self.get_data(key, engine)
+        if data is not None:
+            result = data.get('value')
+        #print ('Get ' + engine + ' ' + key + ' = ' + str(result))
+        return result
+
+    def get_log(self, engine=None):
+        # Query function for logging field
+        return self.get_data('log', engine)
+
+    def get_engines(self):
+        # Get list of logged engines
+        return self.data.keys()
+
+def set_local_socket():
+    # Set socket to a fake socket that simply collects the data
+    global _socketIO
+    if not isinstance(_socketIO, LocalSocket): _socketIO = LocalSocket()
+    return _socketIO
+
+
 
 if __name__ == "__main__":
     import time
@@ -142,3 +213,4 @@ if __name__ == "__main__":
         update({"status":{"value": "finished", "type":"string"}})
 
     prog_test(100)
+
